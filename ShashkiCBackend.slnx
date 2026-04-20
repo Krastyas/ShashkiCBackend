@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="ShashkiCBackend/ShashkiCBackend.vcxproj" Id="7e5aa59f-ccbe-440a-a5e8-b83f80bd7d10" />
+</Solution>
