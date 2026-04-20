@@ -2,6 +2,16 @@
 #include <windows.h>
 #include "board.h"
 #include "moves.h"
+
+#define DEBUG 1
+
+#if DEBUG 
+    #define DBG(x) x << endl
+#else
+    #define DBG(x) x
+    #define DBG_LN(x) x << endl
+#endif 
+
 using namespace std;
 void makeBackup(backupInfo* back) {
 
@@ -24,6 +34,15 @@ int main()
     while (true)
     {
         printDesk(&board);
+
+        
+        DBG(cout << endl << "=== ОТЛАДКА ===");
+        DBG(cout << "Цвет в from (" << step.from.x << "," << step.from.y << "): " << board.place[step.from.x][step.from.y].color);
+        DBG(cout << "Цвет в to (" << step.to.x << "," << step.to.y << "): " << board.place[step.to.x][step.to.y].color);
+        DBG(cout << "Текущий игрок: " << board.currentColor);
+        DBG(cout << "isBlackCell(to): " << isBlackCell(&step.to));
+        DBG(cout << "isEmpty(to): " << isEmpty(&board, &step.to));
+        DBG(cout << "==============" << endl);
 
         cout << "Ход: X1 Y1 X2 Y2" << endl;
         cin >> step.from.x >> step.from.y >> step.to.x >> step.to.y;
