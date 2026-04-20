@@ -71,6 +71,26 @@ void printDesk(desk* board) {
     cout << "   __________________" << endl;
     cout << "     0 1 2 3 4 5 6 7" << endl;
 }
+// =======================================================
+
+void saveBackup(backupInfo* bk, moveInfo* step, desk* board) {
+    bk->from = step->from;
+    bk->to = step->to;
+    bk->oldCurretnColor = board->currentColor;
+    bk->oldMustCapt = board->mustCapt;
+
+    bk->fromPiece = board->place[step->from.x][step->from.y];
+    bk->toPiece = board->place[step->to.x][step->to.y];
+    bk->capturedPiece = board->place[step->captured.x][step->captured.y];
+
+    if (step->result == 2) {
+        bk->oldMustKiller = board->mustKiller;
+        bk->oldBLack = board->black;
+        bk->oldWhite = board->white;
+        bk->captured = step->captured;
+    }
+
+}
 
 // =======================================================
 

@@ -31,7 +31,7 @@ struct moveInfo {
 
 struct desk {
     piece place[8][8] = {};
-    int mustCapt = 0;
+    int mustCapt = 0; // Обязательная рубка
     int currentColor = 0;
     int black = 12;
     int white = 12;
@@ -39,14 +39,18 @@ struct desk {
 };
 
 struct backupInfo {
-    position to;
     position from;
-    position captured;
+    position to;
+    position captured;  
     position oldMustKiller;
+
+    piece fromPiece;
+    piece toPiece;        // фигуры сохраняю
+    piece capturedPiece;
 
     int oldBLack;
     int oldWhite;
     int oldCurretnColor;
-    int mustCapt;
+    int oldMustCapt;
 };
 

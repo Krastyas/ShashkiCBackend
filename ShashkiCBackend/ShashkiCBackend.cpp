@@ -3,13 +3,13 @@
 #include "board.h"
 #include "moves.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 #if DEBUG 
     #define DBG(x) x << endl
 #else
-    #define DBG(x) x
-    #define DBG_LN(x) x << endl
+    #define DBG(x) 
+    #define DBG_LN(x) 
 #endif 
 
 using namespace std;
