@@ -21,10 +21,8 @@ void makeMove(desk& board, moveInfo& step);
 bool haveAnyCapt(const desk& board, int color, int onX = -1, int onY = -1);
 inline int opposite(int color);
 	
-// бэкап
-
 // Действия
-bool isCapt(desk& board, moveInfo& step);
+bool isCapt(const desk& board, moveInfo& step);
 
 //Бэкпап
 void saveBackup(backupInfo& bk, const moveInfo& step, const desk& board);

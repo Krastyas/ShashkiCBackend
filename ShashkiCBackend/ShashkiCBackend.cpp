@@ -2,6 +2,7 @@
 #include <windows.h>
 #include "board.h"
 #include "moves.h"
+#include "ai.h"
 
 #define DEBUG 0
 
@@ -33,7 +34,8 @@ int main()
     while (true)
     {
         printDesk(board);
-        
+		int score = evaluateBoard(board);
+        cout << "Очки: " << score << endl;
         DBG(cout << endl << "=== ОТЛАДКА ===");
         DBG(cout << "Цвет в from (" << step.from.x << "," << step.from.y << "): " << board.place[step.from.x][step.from.y].color);
         DBG(cout << "Цвет в to (" << step.to.x << "," << step.to.y << "): " << board.place[step.to.x][step.to.y].color);

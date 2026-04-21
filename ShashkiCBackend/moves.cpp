@@ -71,7 +71,9 @@ void printDesk(const desk& board) {
     cout << "   __________________" << endl;
     cout << "     0 1 2 3 4 5 6 7" << endl;
 }
+
 // =======================================================
+
 
 void saveBackup(backupInfo& bk, const moveInfo& step, const desk& board) {
     // Всегда сохраняем
@@ -178,7 +180,7 @@ bool isNormalMove(const desk& board, moveInfo& step)
 
 // =======================================================
 
-bool isCapt(desk& board, moveInfo& step)
+bool isCapt(const desk& board, moveInfo& step)
 {
     if (!isEmpty(board, step.to)) return false;
 
@@ -300,7 +302,7 @@ bool haveAnyCapt(const desk& board, int color, int onX, int onY)
                         testStep.to.x = tx;
                         testStep.to.y = ty;
 
-                        if (isCapt(const_cast<desk&>(board), testStep))
+                        if (isCapt(board, testStep))
                             return true;
 
                         tx += sx[i];
@@ -341,14 +343,14 @@ int isValidMove(const desk& board, moveInfo& step)
         board.mustCapt ? board.mustKiller.x : -1,
         board.mustCapt ? board.mustKiller.y : -1))
     {
-        if (!isCapt(const_cast<desk&>(board), step))
+        if (!isCapt(board, step))
         {
             cout << "Обязательная рубка!" << endl;
             return 0;
         }
     }
 
-    if (isCapt(const_cast<desk&>(board), step)) return 2;
+    if (isCapt(board, step)) return 2;
     if (isNormalMove(board, step)) return 1;
 
     return 0;

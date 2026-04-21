@@ -127,10 +127,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ai.cpp" />
     <ClCompile Include="moves.cpp" />
     <ClCompile Include="ShashkiCBackend.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ai.h" />
     <ClInclude Include="board.h" />
     <ClInclude Include="moves.h" />
   </ItemGroup>
