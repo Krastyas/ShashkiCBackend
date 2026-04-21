@@ -52,5 +52,7 @@ struct backupInfo {
     int oldWhite;
     int oldCurretnColor;
     int oldMustCapt;
+    int oldResult;
+  
 };
 

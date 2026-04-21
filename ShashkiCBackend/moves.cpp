@@ -1,46 +1,46 @@
 #include "moves.h"
 #include <cmath>
 #include <iostream>
-#include <windows.h>
 using namespace std;
 
+constexpr int boardSize = 8;
 
 
-void newGame(desk* board) {
-    board->black = 12;
-    board->white = 12;
-    board->mustCapt = 0;
-    board->mustKiller.x = -1;
-    board->mustKiller.y = -1;
+void newGame(desk& board) {
+    board.black = 12;
+    board.white = 12;
+    board.mustCapt = 0;
+    board.mustKiller.x = -1;
+    board.mustKiller.y = -1;
 
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < boardSize; i++)
     {
-        for (int j = 0; j < 8; j++)
+        for (int j = 0; j < boardSize; j++)
         {
             if (i <= 2 and (i + j) % 2 != 0) {
-                board->place[i][j].color = white;
-                board->place[i][j].type = casual;
+                board.place[i][j].color = white;
+                board.place[i][j].type = casual;
             }
             else if (i >= 5 and (i + j) % 2 != 0) {
-                board->place[i][j].color = black;
-                board->place[i][j].type = casual;
+                board.place[i][j].color = black;
+                board.place[i][j].type = casual;
             }
             else {
-                board->place[i][j].color = colorEmpty;
-                board->place[i][j].type = typeEmpty;
+                board.place[i][j].color = colorEmpty;
+                board.place[i][j].type = typeEmpty;
             }
         }
     }
 }
 
-bool endGame(desk* board) {
-    if (board->black == 0)
+bool endGame(const desk& board) {
+    if (board.black == 0)
     {
         cout << "Белые выиграли!" << endl;
         return true;
     }
 
-    if (board->white == 0)
+    if (board.white == 0)
     {
         cout << "Черные выиграли!" << endl;
         return true;
@@ -49,19 +49,19 @@ bool endGame(desk* board) {
 }
 
 
-void printDesk(desk* board) {
-    cout << "Ход: " << board->currentColor << endl;
+void printDesk(const desk& board) {
+    cout << "Ход: " << board.currentColor << endl;
 
-    for (int i = 7; i >= 0; i--)
+    for (int i = boardSize - 1; i >= 0; i--)
     {
         cout << i << " | ";
 
-        for (int j = 0; j < 8; j++)
+        for (int j = 0; j < boardSize; j++)
         {
-            if (board->place[i][j].color == black and board->place[i][j].type == casual) cout << 'B' << ' ';
-            else if (board->place[i][j].color == white and board->place[i][j].type == casual) cout << 'W' << ' ';
-            else if (board->place[i][j].color == black and board->place[i][j].type == queen) cout << 'Q' << ' ';
-            else if (board->place[i][j].color == white and board->place[i][j].type == queen) cout << 'K' << ' ';
+            if (board.place[i][j].color == black and board.place[i][j].type == casual) cout << 'B' << ' ';
+            else if (board.place[i][j].color == white and board.place[i][j].type == casual) cout << 'W' << ' ';
+            else if (board.place[i][j].color == black and board.place[i][j].type == queen) cout << 'Q' << ' ';
+            else if (board.place[i][j].color == white and board.place[i][j].type == queen) cout << 'K' << ' ';
             else cout << 'o' << ' ';
         }
 
@@ -73,57 +73,75 @@ void printDesk(desk* board) {
 }
 // =======================================================
 
-void saveBackup(backupInfo* bk, moveInfo* step, desk* board) {
-    bk->from = step->from;
-    bk->to = step->to;
-    bk->oldCurretnColor = board->currentColor;
-    bk->oldMustCapt = board->mustCapt;
+void saveBackup(backupInfo& bk, const moveInfo& step, const desk& board) {
+    // Всегда сохраняем
+    bk.from = step.from;
+    bk.to = step.to;
+    bk.captured = step.captured;
+    bk.oldResult = step.result;           // ? добавить
+    bk.oldCurretnColor = board.currentColor;
+    bk.oldMustCapt = board.mustCapt;
 
-    bk->fromPiece = board->place[step->from.x][step->from.y];
-    bk->toPiece = board->place[step->to.x][step->to.y];
-    bk->capturedPiece = board->place[step->captured.x][step->captured.y];
+    bk.fromPiece = board.place[step.from.x][step.from.y];
+    bk.toPiece = board.place[step.to.x][step.to.y];
+    bk.capturedPiece = board.place[step.captured.x][step.captured.y];
 
-    if (step->result == 2) {
-        bk->oldMustKiller = board->mustKiller;
-        bk->oldBLack = board->black;
-        bk->oldWhite = board->white;
-        bk->captured = step->captured;
-    }
+    // Всегда сохраняем (на случай отката)
+    bk.oldMustKiller = board.mustKiller;
+    bk.oldBLack = board.black;
+    bk.oldWhite = board.white;
+}
 
+void loadBackup(const backupInfo& bk, moveInfo& step, desk& board) {
+    step.from = bk.from;
+    step.to = bk.to;
+    step.captured = bk.captured;
+    step.result = bk.oldResult;           
+
+    board.currentColor = bk.oldCurretnColor;
+    board.mustCapt = bk.oldMustCapt;
+    board.black = bk.oldBLack;
+    board.white = bk.oldWhite;
+    board.mustKiller = bk.oldMustKiller;
+
+    board.place[step.from.x][step.from.y] = bk.fromPiece;
+    board.place[step.to.x][step.to.y] = bk.toPiece;
+    board.place[step.captured.x][step.captured.y] = bk.capturedPiece;
+}
+
+
+// =======================================================
+
+bool isValidPosition(const position& pos) {
+    return pos.x >= 0 and pos.x <= 7 and pos.y >= 0 and pos.y <= 7;
+}
+
+bool isEmpty(const desk& board, const position& pos) {
+    if (!isValidPosition(pos)) return false;
+    return board.place[pos.x][pos.y].color == colorEmpty;
+}
+
+bool isBlackCell(const position& pos) {
+    if (!isValidPosition(pos)) return false;
+    return (pos.x + pos.y) % 2 != 0;
 }
 
 // =======================================================
 
-bool isValidPosition(position* pos) {
-    return pos->x >= 0 and pos->x <= 7 and pos->y >= 0 and pos->y <= 7;
-}
-
-bool isEmpty(desk* board, position* pos) {
-    if (!isValidPosition(pos)) return false;
-    return board->place[pos->x][pos->y].color == colorEmpty;
-}
-
-bool isBlackCell(position* pos) {
-    if (!isValidPosition(pos)) return false;
-    return (pos->x + pos->y) % 2 != 0;
-}
-
-// =======================================================
-
-bool isNormalMove(desk* board, moveInfo* step)
+bool isNormalMove(const desk& board, moveInfo& step)
 {
-    if (!isEmpty(board, &step->to)) return false;
+    if (!isEmpty(board, step.to)) return false;
 
-    int x1 = step->from.x;
-    int y1 = step->from.y;
-    int x2 = step->to.x;
-    int y2 = step->to.y;
+    int x1 = step.from.x;
+    int y1 = step.from.y;
+    int x2 = step.to.x;
+    int y2 = step.to.y;
 
     int dx = x2 - x1;
     int dy = y2 - y1;
 
     // дамка
-    if (board->place[x1][y1].type == queen and abs(dx) == abs(dy))
+    if (board.place[x1][y1].type == queen and abs(dx) == abs(dy))
     {
         int sx = (dx > 0) ? 1 : -1;
         int sy = (dy > 0) ? 1 : -1;
@@ -134,7 +152,7 @@ bool isNormalMove(desk* board, moveInfo* step)
 
         while (temp.x != x2 or temp.y != y2)
         {
-            if (!isEmpty(board, &temp)) return false;
+            if (!isEmpty(board, temp)) return false;
             temp.x += sx;
             temp.y += sy;
         }
@@ -145,8 +163,8 @@ bool isNormalMove(desk* board, moveInfo* step)
     // обычная шашка
     if (abs(dx) == 1 and abs(dy) == 1)
     {
-        if (board->place[x1][y1].color == black) return dx == -1;
-        if (board->place[x1][y1].color == white) return dx == 1;
+        if (board.place[x1][y1].color == black) return dx == -1;
+        if (board.place[x1][y1].color == white) return dx == 1;
     }
 
     return false;
@@ -154,41 +172,37 @@ bool isNormalMove(desk* board, moveInfo* step)
 
 // =======================================================
 
-void cheat(desk* board, moveInfo* step)
-{
-    if (step->to.x == 14 and step->to.y == 88) {
-        board->place[step->from.x][step->from.y].type = queen;
-        cout << "Вы использовали чит-код!" << endl;
-    }
-}
+
+
+
 
 // =======================================================
 
-bool isCapt(desk* board, moveInfo* step)
+bool isCapt(desk& board, moveInfo& step)
 {
-    if (!isEmpty(board, &step->to)) return false;
+    if (!isEmpty(board, step.to)) return false;
 
-    int x1 = step->from.x;
-    int y1 = step->from.y;
-    int x2 = step->to.x;
-    int y2 = step->to.y;
+    int x1 = step.from.x;
+    int y1 = step.from.y;
+    int x2 = step.to.x;
+    int y2 = step.to.y;
 
     int dx = x2 - x1;
     int dy = y2 - y1;
 
     // обычная шашка
-    if (board->place[x1][y1].type == casual)
+    if (board.place[x1][y1].type == casual)
     {
         if (abs(dx) == 2 and abs(dy) == 2)
         {
             int mx = x1 + dx / 2;
             int my = y1 + dy / 2;
 
-            if (board->place[mx][my].color != colorEmpty and
-                board->place[mx][my].color != board->place[x1][y1].color)
+            if (board.place[mx][my].color != colorEmpty and
+                board.place[mx][my].color != board.place[x1][y1].color)
             {
-                step->captured.x = mx;
-                step->captured.y = my;
+                step.captured.x = mx;
+                step.captured.y = my;
                 return true;
             }
         }
@@ -197,7 +211,7 @@ bool isCapt(desk* board, moveInfo* step)
     }
 
     // дамка
-    if (board->place[x1][y1].type == queen)
+    if (board.place[x1][y1].type == queen)
     {
         if (abs(dx) != abs(dy)) return false;
 
@@ -212,15 +226,15 @@ bool isCapt(desk* board, moveInfo* step)
 
         while (temp.x != x2 or temp.y != y2)
         {
-            if (board->place[temp.x][temp.y].color != colorEmpty)
+            if (board.place[temp.x][temp.y].color != colorEmpty)
             {
-                if (board->place[temp.x][temp.y].color ==
-                    board->place[x1][y1].color) return false;
+                if (board.place[temp.x][temp.y].color ==
+                    board.place[x1][y1].color) return false;
 
                 if (found) return false;
 
                 found = true;
-                step->captured = temp;
+                step.captured = temp;
             }
 
             temp.x += sx;
@@ -235,15 +249,15 @@ bool isCapt(desk* board, moveInfo* step)
 
 // =======================================================
 
-bool haveAnyCapt(desk* board, int color, int onX, int onY)
+bool haveAnyCapt(const desk& board, int color, int onX, int onY)
 {
     moveInfo testStep;
 
-    for (int x = 0; x < 8; x++)
+    for (int x = 0; x < boardSize; x++)
     {
-        for (int y = 0; y < 8; y++)
+        for (int y = 0; y < boardSize; y++)
         {
-            if (board->place[x][y].color != color)
+            if (board.place[x][y].color != color)
                 continue;
 
             if (onX != -1 and onY != -1)
@@ -255,7 +269,7 @@ bool haveAnyCapt(desk* board, int color, int onX, int onY)
             testStep.from.x = x;
             testStep.from.y = y;
 
-            if (board->place[x][y].type == casual)
+            if (board.place[x][y].type == casual)
             {
                 int dir[4][2] = {
                     {-2,-2},{-2,2},{2,-2},{2,2}
@@ -266,8 +280,8 @@ bool haveAnyCapt(desk* board, int color, int onX, int onY)
                     testStep.to.x = x + dir[i][0];
                     testStep.to.y = y + dir[i][1];
 
-                    if (isValidPosition(&testStep.to))
-                        if (isCapt(board, &testStep))
+                    if (isValidPosition(testStep.to))
+                        if (isCapt(const_cast<desk&>(board), testStep))
                             return true;
                 }
             }
@@ -281,12 +295,12 @@ bool haveAnyCapt(desk* board, int color, int onX, int onY)
                     int tx = x + sx[i];
                     int ty = y + sy[i];
 
-                    while (tx >= 0 and tx < 8 and ty >= 0 and ty < 8)
+                    while (tx >= 0 and tx < boardSize and ty >= 0 and ty < boardSize)
                     {
                         testStep.to.x = tx;
                         testStep.to.y = ty;
 
-                        if (isCapt(board, &testStep))
+                        if (isCapt(const_cast<desk&>(board), testStep))
                             return true;
 
                         tx += sx[i];
@@ -302,39 +316,39 @@ bool haveAnyCapt(desk* board, int color, int onX, int onY)
 
 // =======================================================
 
-int isValidMove(desk* board, moveInfo* step)
+int isValidMove(const desk& board, moveInfo& step)
 {
-    if (!isValidPosition(&step->from)) return 0;
-    if (!isValidPosition(&step->to)) return 0;
-    if (!isEmpty(board, &step->to)) return 0;
+    if (!isValidPosition(step.from)) return 0;
+    if (!isValidPosition(step.to)) return 0;
+    if (!isEmpty(board, step.to)) return 0;
 
-    if (board->currentColor !=
-        board->place[step->from.x][step->from.y].color) return 0;
+    if (board.currentColor !=
+        board.place[step.from.x][step.from.y].color) return 0;
 
-    if (!isBlackCell(&step->to)) return 0;
+    if (!isBlackCell(step.to)) return 0;
 
-    if (board->mustCapt)
+    if (board.mustCapt)
     {
-        if (board->mustKiller.x != step->from.x or
-            board->mustKiller.y != step->from.y)
+        if (board.mustKiller.x != step.from.x or
+            board.mustKiller.y != step.from.y)
         {
             cout << "Продолжайте рубку той же шашкой!" << endl;
             return 0;
         }
     }
 
-    if (haveAnyCapt(board, board->currentColor,
-        board->mustCapt ? board->mustKiller.x : -1,
-        board->mustCapt ? board->mustKiller.y : -1))
+    if (haveAnyCapt(board, board.currentColor,
+        board.mustCapt ? board.mustKiller.x : -1,
+        board.mustCapt ? board.mustKiller.y : -1))
     {
-        if (!isCapt(board, step))
+        if (!isCapt(const_cast<desk&>(board), step))
         {
             cout << "Обязательная рубка!" << endl;
             return 0;
         }
     }
 
-    if (isCapt(board, step)) return 2;
+    if (isCapt(const_cast<desk&>(board), step)) return 2;
     if (isNormalMove(board, step)) return 1;
 
     return 0;
@@ -346,41 +360,43 @@ int opposite(int color) {
     return 3 - color;
 }
 
-void makeMove(desk* board, moveInfo* step) {
-        // переносим ВСЮ фигуру
+void makeMove(desk& board, moveInfo& step) {
+    // переносим ВСЮ фигуру
+    board.place[step.to.x][step.to.y] =
+        board.place[step.from.x][step.from.y];
 
-        board->place[step->to.x][step->to.y] =
-            board->place[step->from.x][step->from.y];
+    board.place[step.from.x][step.from.y].color = colorEmpty;
+    board.place[step.from.x][step.from.y].type = typeEmpty;
 
-        board->place[step->from.x][step->from.y].color = colorEmpty;
-        board->place[step->from.x][step->from.y].type = typeEmpty;
+    // превращение
+    if (step.to.x == 7 and board.place[step.to.x][step.to.y].color == white)
+        board.place[step.to.x][step.to.y].type = queen;
 
-        // превращение
-        if (step->to.x == 7 and board->place[step->to.x][step->to.y].color == white)
-            board->place[step->to.x][step->to.y].type = queen;
+    else if (step.to.x == 0 and board.place[step.to.x][step.to.y].color == black)
+        board.place[step.to.x][step.to.y].type = queen;
 
-        if (step->to.x == 0 and board->place[step->to.x][step->to.y].color == black)
-            board->place[step->to.x][step->to.y].type = queen;
+    // рубка
+    if (step.result == 2)
+    {
+        if (board.place[step.captured.x][step.captured.y].color == white)
+            board.white--;
+        else
+            board.black--;
 
-        // рубка
-        if (step->result == 2)
+        board.place[step.captured.x][step.captured.y].color = colorEmpty;
+        board.place[step.captured.x][step.captured.y].type = typeEmpty;
+
+        if (haveAnyCapt(board, board.currentColor, step.to.x, step.to.y))
         {
-            if (board->place[step->captured.x][step->captured.y].color == white)
-                board->white--;
-            else
-                board->black--;
-
-            board->place[step->captured.x][step->captured.y].color = colorEmpty;
-            board->place[step->captured.x][step->captured.y].type = typeEmpty;
-
-            if (haveAnyCapt(board, board->currentColor, step->to.x, step->to.y))
-            {
-                board->mustCapt = 1;
-                board->mustKiller = step->to;
-                cout << "Продолжение рубки!" << endl;
-                return;
-            }
+            board.mustCapt = 1;
+            board.mustKiller = step.to;
+            cout << "Продолжение рубки!" << endl;
+            return;
         }
-    board->mustCapt = 0;
-    board->currentColor = 3 - board->currentColor;
+    }
+
+    else if (step.result == -1) return;
+
+    board.mustCapt = 0;
+    board.currentColor = 3 - board.currentColor;
 }

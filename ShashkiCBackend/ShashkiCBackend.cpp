@@ -13,19 +13,18 @@
 #endif 
 
 using namespace std;
-void makeBackup(backupInfo* back) {
 
-}
 
 moveInfo step;
 desk board;
+backupInfo backup;
 
 
 int main()
 {
     SetConsoleOutputCP(1251);
 
-    newGame(&board);
+    newGame(board);
     cout << "Какой цвет шашек?" << endl;
     cout << "1 - черный | 2 - белый" << endl;
 
@@ -33,30 +32,35 @@ int main()
 
     while (true)
     {
-        printDesk(&board);
-
+        printDesk(board);
         
         DBG(cout << endl << "=== ОТЛАДКА ===");
         DBG(cout << "Цвет в from (" << step.from.x << "," << step.from.y << "): " << board.place[step.from.x][step.from.y].color);
         DBG(cout << "Цвет в to (" << step.to.x << "," << step.to.y << "): " << board.place[step.to.x][step.to.y].color);
         DBG(cout << "Текущий игрок: " << board.currentColor);
-        DBG(cout << "isBlackCell(to): " << isBlackCell(&step.to));
-        DBG(cout << "isEmpty(to): " << isEmpty(&board, &step.to));
+        DBG(cout << "isBlackCell(to): " << isBlackCell(step.to));
+        DBG(cout << "isEmpty(to): " << isEmpty(board, step.to));
         DBG(cout << "==============" << endl);
 
         cout << "Ход: X1 Y1 X2 Y2" << endl;
         cin >> step.from.x >> step.from.y >> step.to.x >> step.to.y;
 
-        if (step.to.x == 14 and step.to.y == 88)
-            cheat(&board, &step);
+        if (step.to.x == 12 && step.to.y == 0) {
+            loadBackup(backup, step, board);
+            continue;  
 
-        step.result = isValidMove(&board, &step);
+        }
 
-        if (!step.result)
-            cout << "Неверный ход!" << endl;
-        else
-            makeMove(&board, &step);
+        step.result = isValidMove(board, step);
 
-        if (endGame(&board)) break;
+            if (!step.result)
+                cout << "Неверный ход!" << endl;
+            else {
+                saveBackup(backup, step, board);
+                makeMove(board, step);
+            }
+        
+
+        if (endGame(board)) break;
     }
 }
