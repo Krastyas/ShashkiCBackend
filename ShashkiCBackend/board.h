@@ -1,5 +1,8 @@
 #pragma once
 
+constexpr int boardSize = 8;
+
+
 enum pieceType {
     typeEmpty = 0,
     casual = 1,

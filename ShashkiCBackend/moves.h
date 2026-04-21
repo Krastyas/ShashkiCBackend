@@ -15,6 +15,7 @@ inline bool isBlackCell(const position& pos);
 // Проверки ходов
 bool isNormalMove(const desk& board, moveInfo& step);
 int isValidMove(const desk& board, moveInfo& step);
+int isValidMoveForAI(const desk& board, moveInfo& step);
 void makeMove(desk& board, moveInfo& step);
 
 // Рубка и обязательная рубка

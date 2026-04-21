@@ -3,7 +3,6 @@
 #include <iostream>
 using namespace std;
 
-constexpr int boardSize = 8;
 
 
 void newGame(desk& board) {
@@ -283,7 +282,7 @@ bool haveAnyCapt(const desk& board, int color, int onX, int onY)
                     testStep.to.y = y + dir[i][1];
 
                     if (isValidPosition(testStep.to))
-                        if (isCapt(const_cast<desk&>(board), testStep))
+                        if (isCapt(board, testStep))
                             return true;
                 }
             }
@@ -315,6 +314,7 @@ bool haveAnyCapt(const desk& board, int color, int onX, int onY)
 
     return false;
 }
+
 
 // =======================================================
 
@@ -356,6 +356,23 @@ int isValidMove(const desk& board, moveInfo& step)
     return 0;
 }
 
+int isValidMoveForAI(const desk& board, moveInfo& step)
+{
+    if (!isValidPosition(step.from)) return 0;
+    if (!isValidPosition(step.to)) return 0;
+    if (!isEmpty(board, step.to)) return 0;
+
+    if (board.currentColor !=
+        board.place[step.from.x][step.from.y].color) return 0;
+
+    if (!isBlackCell(step.to)) return 0;
+
+    if (isCapt(board, step)) return 2;
+    else if (isNormalMove(board, step)) return 1;
+
+    return 0;
+}
+
 // =======================================================
 
 int opposite(int color) {
@@ -363,6 +380,7 @@ int opposite(int color) {
 }
 
 void makeMove(desk& board, moveInfo& step) {
+    // переносим ВСЮ фигуру
     // переносим ВСЮ фигуру
     board.place[step.to.x][step.to.y] =
         board.place[step.from.x][step.from.y];

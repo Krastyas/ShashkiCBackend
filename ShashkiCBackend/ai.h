@@ -4,4 +4,4 @@
 
 inline int evaluateBoard(const desk& board);
 
-int getAllMoves(const desk& board, moveInfo* moves);
+int getAllMoves(const desk& board);

@@ -44,9 +44,9 @@ int main()
         DBG(cout << "isEmpty(to): " << isEmpty(board, step.to));
         DBG(cout << "==============" << endl);
 
+        cout << getAllMoves(board);
         cout << "Ход: X1 Y1 X2 Y2" << endl;
         cin >> step.from.x >> step.from.y >> step.to.x >> step.to.y;
-
         if (step.to.x == 12 && step.to.y == 0) {
             loadBackup(backup, step, board);
             continue;  

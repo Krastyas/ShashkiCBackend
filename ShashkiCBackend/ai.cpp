@@ -1,9 +1,9 @@
+#include "moves.h"
 #include "board.h"
 #include <cmath>
 #include <iostream>
 using namespace std;
 
-constexpr int boardSize = 8;
 
 int evaluateBoard(const desk& board) {
     int score = 0;
@@ -25,60 +25,52 @@ int evaluateBoard(const desk& board) {
     return score;
 }
 
-int getAllMoves(const desk& board, moveInfo* moves){
-    moveInfo testStep;
+int getAllMoves(const desk& board) {
+    moveInfo testStep = {}; 
+    moveInfo var[200] = {}; int count = 0;
 
-    for (int x = 0; x < boardSize; x++)
-    {
-        for (int y = 0; y < boardSize; y++)
-        {
-            if (board.place[x][y].color != board.currentColor)
-                continue;
+    if (board.mustCapt) { // Если шашка продолжает рубку
+        testStep.from.x = board.mustKiller.x;
+        testStep.from.y = board.mustKiller.y;
+      
 
-            testStep.from.x = x;
-            testStep.from.y = y;
+        int dir[4][2] = {
+                   {-2,-2},{-2,2},{2,-2},{2,2}
+        };
 
-            if (board.place[x][y].type == casual)
-            {
-                int dir[4][2] = {
-                    {-2,-2},{-2,2},{2,-2},{2,2}
-                };
-
-                for (int i = 0; i < 4; i++)
-                {
-                    testStep.to.x = x + dir[i][0];
-                    testStep.to.y = y + dir[i][1];
-
-                    if (isValidPosition(testStep.to))
-                        if (isCapt(const_cast<desk&>(board), testStep))
-                            return true;
+        for (int d = 0; d < 4; d++) {
+            testStep.to.x = testStep.from.x + dir[d][0];
+            testStep.to.y = testStep.from.y + dir[d][1];
+            if (isValidPosition(testStep.to))
+                if (isCapt(board, testStep)) {
+                    var[count++] = testStep;
                 }
-            }
-            else
-            {
-                int sx[4] = { -1,-1,1,1 };
-                int sy[4] = { -1,1,-1,1 };
+        }
+    }
+    else {
+        for (int i = 0; i < boardSize; i++) {
+            for (int j = 0; j < boardSize; j++) {
+                int x = i; int y = j;
+                if (board.place[x][y].color != board.currentColor) continue;
 
-                for (int i = 0; i < 4; i++)
-                {
-                    int tx = x + sx[i];
-                    int ty = y + sy[i];
+                if (board.place[x][y].type == casual) {
+                    int dir[4][2] = {
+                       {-2,-2},{-2,2},{2,-2},{2,2}
+                    };
 
-                    while (tx >= 0 and tx < boardSize and ty >= 0 and ty < boardSize)
-                    {
-                        testStep.to.x = tx;
-                        testStep.to.y = ty;
+                    testStep.from.x = x;
+                    testStep.from.y = y;
 
-                        if (isCapt(board, testStep))
-                            return true;
-
-                        tx += sx[i];
-                        ty += sy[i];
+                    for (int d = 0; d < 4; d++) {
+                        testStep.to.x = testStep.from.x + dir[d][0];
+                        testStep.to.y = testStep.from.y + dir[d][1];
+                        if (isValidMoveForAI(board, testStep)) {
+                            cout << testStep.from.x << " " << testStep.from.y << isCapt(board, testStep) << endl;
+                        }
                     }
-                }
+                } // Сначала мы проверяем шашки, которые идут в аттаку (казуал и квин), потом обычные шаги
             }
         }
     }
-
-    return false;
+    return 1;
 }
