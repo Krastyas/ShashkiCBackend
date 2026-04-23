@@ -25,9 +25,27 @@ int evaluateBoard(const desk& board) {
     return score;
 }
 
+int isValidMoveForAI(const desk& board, moveInfo& step)
+{
+    if (!isValidPosition(step.from)) return 0;
+    if (!isValidPosition(step.to)) return 0;
+    if (!isEmpty(board, step.to)) return 0;
+
+    if (board.currentColor !=
+        board.place[step.from.x][step.from.y].color) return 0;
+
+    if (!isBlackCell(step.to)) return 0;
+
+    if (isCapt(board, step)) return 2;
+    else if (isNormalMove(board, step)) return 1;
+
+    return 0;
+}
+
 int getAllMoves(const desk& board) {
     moveInfo testStep = {}; 
     moveInfo var[200] = {}; int count = 0;
+    int capt = 0;
 
     if (board.mustCapt) { // Если шашка продолжает рубку
         testStep.from.x = board.mustKiller.x;
@@ -43,6 +61,7 @@ int getAllMoves(const desk& board) {
             testStep.to.y = testStep.from.y + dir[d][1];
             if (isValidPosition(testStep.to))
                 if (isCapt(board, testStep)) {
+                    cout << testStep.from.x << " " << testStep.from.y << isCapt(board, testStep) << endl;
                     var[count++] = testStep;
                 }
         }
@@ -50,27 +69,90 @@ int getAllMoves(const desk& board) {
     else {
         for (int i = 0; i < boardSize; i++) {
             for (int j = 0; j < boardSize; j++) {
-                int x = i; int y = j;
-                if (board.place[x][y].color != board.currentColor) continue;
+                testStep.from.x = i;
+                testStep.from.y = j;
+                if (board.place[testStep.from.x][testStep.from.y].color != board.currentColor) continue;
+                // Сначала мы проверяем шашки, которые идут в аттаку (казуал и квин), потом обычные шаги
+                if (board.place[testStep.from.x][testStep.from.y].type == casual) {
 
-                if (board.place[x][y].type == casual) {
                     int dir[4][2] = {
-                       {-2,-2},{-2,2},{2,-2},{2,2}
+                       {-2,-2},{-2,2},{2,-2},{2,2} // варианты ходов
                     };
 
-                    testStep.from.x = x;
-                    testStep.from.y = y;
+     
 
                     for (int d = 0; d < 4; d++) {
                         testStep.to.x = testStep.from.x + dir[d][0];
                         testStep.to.y = testStep.from.y + dir[d][1];
-                        if (isValidMoveForAI(board, testStep)) {
+                        if (isCapt(board, testStep)) {
                             cout << testStep.from.x << " " << testStep.from.y << isCapt(board, testStep) << endl;
+                            capt = 1; if (capt) cout << "CAPT!";
                         }
                     }
-                } // Сначала мы проверяем шашки, которые идут в аттаку (казуал и квин), потом обычные шаги
+                } 
+                else if (board.place[testStep.from.x][testStep.from.y].type == queen) {
+
+                    int dir[4][2] = {
+                                 {-1,-1},{-1,1},{1,-1},{1,1} // варианты ходов
+                    };
+
+                    for (int d = 0; d < 4; d++) {
+                        int tx = testStep.from.x + dir[d][0];
+                        int ty = testStep.from.y + dir[d][1];
+                        while (tx >= 0 && tx < boardSize && ty >= 0 && ty < boardSize) {
+                            testStep.to.x = tx;
+                            testStep.to.y = ty;
+
+                            if (isCapt(board, testStep)) {
+                                cout << testStep.from.x << " " << testStep.from.y << isCapt(board, testStep) << endl;
+                                capt = 1; if (capt) cout << "CAPT!";
+                            }
+          
+                            tx += dir[d][0];
+                            ty += dir[d][1];
+
+                        }
+                        
+                    }
+                }
+
+                if (!capt) {
+                    if (board.place[testStep.from.x][testStep.from.y].type == queen) {
+                        int dir[4][2] = {
+             {-1,-1},{-1,1},{1,-1},{1,1} // варианты ходов
+                        };
+                        for (int d = 0; d < 4; d++) {
+                            int tx = testStep.from.x + dir[d][0];
+                            int ty = testStep.from.y + dir[d][1];
+                            while (tx >= 0 && tx < boardSize && ty >= 0 && ty < boardSize) {
+                                testStep.to.x = tx;
+                                testStep.to.y = ty;
+
+                                if (isNormalMove(board, testStep)) {
+                                    cout << testStep.from.x << " " << testStep.from.y << endl;
+                                }
+
+                                tx += dir[d][0];
+                                ty += dir[d][1];
+
+                            }
+                        }
+                    }
+                    else if (board.place[testStep.from.x][testStep.from.y].type == casual) {
+                        int dir[4][2] = {
+                   {-1,-1},{-1,1},{1,-1},{1,1} // варианты ходов
+                        };
+                        for (int d = 0; d < 4; d++) {
+                            testStep.to.x = testStep.from.x + dir[d][0];
+                            testStep.to.y = testStep.from.y + dir[d][1];
+                            if (isNormalMove(board, testStep)) {
+                                cout << testStep.from.x << " " << testStep.from.y << endl;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
-    return 1;
+    return 0;
 }

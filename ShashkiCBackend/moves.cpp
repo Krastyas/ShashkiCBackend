@@ -50,7 +50,6 @@ bool endGame(const desk& board) {
 
 void printDesk(const desk& board) {
     cout << "Õîä: " << board.currentColor << endl;
-
     for (int i = boardSize - 1; i >= 0; i--)
     {
         cout << i << " | ";
@@ -356,22 +355,7 @@ int isValidMove(const desk& board, moveInfo& step)
     return 0;
 }
 
-int isValidMoveForAI(const desk& board, moveInfo& step)
-{
-    if (!isValidPosition(step.from)) return 0;
-    if (!isValidPosition(step.to)) return 0;
-    if (!isEmpty(board, step.to)) return 0;
 
-    if (board.currentColor !=
-        board.place[step.from.x][step.from.y].color) return 0;
-
-    if (!isBlackCell(step.to)) return 0;
-
-    if (isCapt(board, step)) return 2;
-    else if (isNormalMove(board, step)) return 1;
-
-    return 0;
-}
 
 // =======================================================
 

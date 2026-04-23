@@ -36,6 +36,7 @@ int main()
         printDesk(board);
 		int score = evaluateBoard(board);
         cout << "Очки: " << score << endl;
+
         DBG(cout << endl << "=== ОТЛАДКА ===");
         DBG(cout << "Цвет в from (" << step.from.x << "," << step.from.y << "): " << board.place[step.from.x][step.from.y].color);
         DBG(cout << "Цвет в to (" << step.to.x << "," << step.to.y << "): " << board.place[step.to.x][step.to.y].color);
@@ -52,11 +53,17 @@ int main()
             continue;  
 
         }
+        if (step.to.x == 777 && step.to.y == 0) {
+            cout << "Активирован чит-код! Шашка стала королевой!" << endl;
+            board.place[step.from.x][step.from.y].type = queen;
+            continue;
+        }
 
         step.result = isValidMove(board, step);
 
-            if (!step.result)
-                cout << "Неверный ход!" << endl;
+        if (!step.result) {
+            cout << "Неверный ход!" << endl;
+        }
             else {
                 saveBackup(backup, step, board);
                 makeMove(board, step);
