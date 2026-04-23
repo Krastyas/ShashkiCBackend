@@ -84,7 +84,13 @@ void saveBackup(backupInfo& bk, const moveInfo& step, const desk& board) {
 
     bk.fromPiece = board.place[step.from.x][step.from.y];
     bk.toPiece = board.place[step.to.x][step.to.y];
-    bk.capturedPiece = board.place[step.captured.x][step.captured.y];
+    if (isValidPosition(step.captured)) {
+        bk.capturedPiece = board.place[step.captured.x][step.captured.y];
+    }
+    else {
+        bk.capturedPiece.color = colorEmpty;
+        bk.capturedPiece.type = typeEmpty;
+    }
 
     // Всегда сохраняем (на случай отката)
     bk.oldMustKiller = board.mustKiller;
@@ -106,7 +112,9 @@ void loadBackup(const backupInfo& bk, moveInfo& step, desk& board) {
 
     board.place[step.from.x][step.from.y] = bk.fromPiece;
     board.place[step.to.x][step.to.y] = bk.toPiece;
-    board.place[step.captured.x][step.captured.y] = bk.capturedPiece;
+    if (isValidPosition(step.captured)) {
+        board.place[step.captured.x][step.captured.y] = bk.capturedPiece;
+    }
 }
 
 
@@ -344,7 +352,6 @@ int isValidMove(const desk& board, moveInfo& step)
     {
         if (!isCapt(board, step))
         {
-            cout << "Обязательная рубка!" << endl;
             return 0;
         }
     }
@@ -394,7 +401,6 @@ void makeMove(desk& board, moveInfo& step) {
         {
             board.mustCapt = 1;
             board.mustKiller = step.to;
-            cout << "Продолжение рубки!" << endl;
             return;
         }
     }

@@ -26,10 +26,10 @@ struct position {
 };
 
 struct moveInfo {
-    position from;
-    position to;
-    position captured;
-    int result;
+    position from{ -1, -1 };
+    position to{ -1, -1 };
+    position captured{ -1, -1 };
+    int result{ 0 };
 };
 
 struct desk {
@@ -42,20 +42,20 @@ struct desk {
 };
 
 struct backupInfo {
-    position from;
-    position to;
-    position captured;  
-    position oldMustKiller;
+    position from{ -1, -1 };
+    position to{ -1, -1 };
+    position captured{ -1, -1 };
+    position oldMustKiller{ -1, -1 };
 
-    piece fromPiece;
-    piece toPiece;        // фигуры сохраняю
-    piece capturedPiece;
+    piece fromPiece{};
+    piece toPiece{};        // фигуры сохраняю
+    piece capturedPiece{};
 
-    int oldBLack;
-    int oldWhite;
-    int oldCurretnColor;
-    int oldMustCapt;
-    int oldResult;
+    int oldBLack{ 0 };
+    int oldWhite{ 0 };
+    int oldCurretnColor{ 0 };
+    int oldMustCapt{ 0 };
+    int oldResult{ 0 };
   
 };
 

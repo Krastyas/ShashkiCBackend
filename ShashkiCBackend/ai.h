@@ -2,7 +2,9 @@
 
 #include "board.h"
 
-inline int evaluateBoard(const desk& board);
+int evaluateBoard(const desk& board, int perspective);
 
-int isValidMoveForAI(const desk& board, moveInfo& step);
-int getAllMoves(const desk& board);
+int getAllMoves(const desk& board, moveInfo var[200], int color);
+
+int minimax(desk& board, int depth, bool isMaximizing, int aiColor);
+void getBestMove(desk& board, moveInfo& bestMove, int aiColor);

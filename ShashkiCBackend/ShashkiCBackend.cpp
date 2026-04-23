@@ -30,45 +30,47 @@ int main()
     cout << "1 - черный | 2 - белый" << endl;
 
     cin >> board.currentColor;
+    int aiColor = 3 - board.currentColor;
 
     while (true)
     {
         printDesk(board);
-		int score = evaluateBoard(board);
-        cout << "Очки: " << score << endl;
+  
+        if (board.currentColor == aiColor) {
 
-        DBG(cout << endl << "=== ОТЛАДКА ===");
-        DBG(cout << "Цвет в from (" << step.from.x << "," << step.from.y << "): " << board.place[step.from.x][step.from.y].color);
-        DBG(cout << "Цвет в to (" << step.to.x << "," << step.to.y << "): " << board.place[step.to.x][step.to.y].color);
-        DBG(cout << "Текущий игрок: " << board.currentColor);
-        DBG(cout << "isBlackCell(to): " << isBlackCell(step.to));
-        DBG(cout << "isEmpty(to): " << isEmpty(board, step.to));
-        DBG(cout << "==============" << endl);
-
-        cout << getAllMoves(board);
-        cout << "Ход: X1 Y1 X2 Y2" << endl;
-        cin >> step.from.x >> step.from.y >> step.to.x >> step.to.y;
-        if (step.to.x == 12 && step.to.y == 0) {
-            loadBackup(backup, step, board);
-            continue;  
-
-        }
-        if (step.to.x == 777 && step.to.y == 0) {
-            cout << "Активирован чит-код! Шашка стала королевой!" << endl;
-            board.place[step.from.x][step.from.y].type = queen;
-            continue;
+            moveInfo bestMove;
+            getBestMove(board, bestMove, aiColor);
+            if (bestMove.result == 0) {
+                cout << "Нет ходов у ИИ";
+                break;
+            }
+            makeMove(board, bestMove);
         }
 
-        step.result = isValidMove(board, step);
+        else {
+            cout << "Ход: X1 Y1 X2 Y2" << endl;
+            cin >> step.from.x >> step.from.y >> step.to.x >> step.to.y;
+            if (step.to.x == 12 && step.to.y == 0) {
+                loadBackup(backup, step, board);
+                continue;
 
-        if (!step.result) {
-            cout << "Неверный ход!" << endl;
-        }
+            }
+            if (step.to.x == 777 && step.to.y == 0) {
+                cout << "Активирован чит-код! Шашка стала королевой!" << endl;
+                board.place[step.from.x][step.from.y].type = queen;
+                continue;
+            }
+
+            step.result = isValidMove(board, step);
+
+            if (!step.result) {
+                cout << "Неверный ход!" << endl;
+            }
             else {
                 saveBackup(backup, step, board);
                 makeMove(board, step);
             }
-        
+        }
 
         if (endGame(board)) break;
     }
