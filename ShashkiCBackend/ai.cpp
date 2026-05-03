@@ -208,7 +208,7 @@ void getBestMove(desk& board, moveInfo& bestMove, int aiColor) {
         saveBackup(backup, moves[i], board);
         makeMove(board, moves[i]);
 
-        int score = minimax(board, 2, false, aiColor);
+        int score = minimax(board, 4, false, aiColor);
 
         loadBackup(backup, moves[i], board);
 
