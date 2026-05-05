@@ -7,10 +7,10 @@
 #define DEBUG 0
 
 #if DEBUG 
-    #define DBG(x) x << endl
+#define DBG(x) x << endl
 #else
-    #define DBG(x) 
-    #define DBG_LN(x) 
+#define DBG(x) 
+#define DBG_LN(x) 
 #endif 
 
 using namespace std;
@@ -30,16 +30,18 @@ int main()
     cout << "1 - черный | 2 - белый" << endl;
 
     cin >> board.currentColor;
+    cout << "1 - легкий | 2 - нормальный | 3 - сложный" << endl;
+    int difficulity = 1; cin >> difficulity;
     int aiColor = 3 - board.currentColor;
 
     while (true)
     {
         printDesk(board);
-  
+
         if (board.currentColor == aiColor) {
 
             moveInfo bestMove;
-            getBestMove(board, bestMove, aiColor);
+            getBestMove(board, bestMove, aiColor, difficulity);
             if (bestMove.result == 0) {
                 cout << "Нет ходов у ИИ";
                 break;
